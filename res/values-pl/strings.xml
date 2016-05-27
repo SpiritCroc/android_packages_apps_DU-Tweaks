@@ -172,7 +172,7 @@
   <string name="status_bar_battery_percentage_title">Pokaż procent baterii</string>
   <string name="status_bar_battery_percentage_dialog_title">Procent baterii</string>
   <string name="status_bar_battery_percentage_default">Ukryte (domyślnie)</string>
-  <string name="status_bar_battery_percentage_text_inside">Inside the icon (not charging)</string>
+  <string name="status_bar_battery_percentage_text_inside">Wewnątrz ikony (bez ładowania)</string>
   <string name="status_bar_battery_percentage_text_next">Obok ikony</string>
   <!-- Battery Bar -->
   <string name="battery_bar_title">Pasek baterii</string>
@@ -338,8 +338,6 @@
   <!-- Time Contextual Header -->
   <string name="status_bar_custom_header_title">Nagłówek pory dnia</string>
   <string name="status_bar_custom_header_summary">Włącz obraz w nagłówku panelu powiadomień</string>
-  <string name="status_bar_custom_header_default_title">Użyj obrazów Poly HD</string>
-  <string name="status_bar_custom_header_default_summary">Włącz wysokiej jakości obrazki poligraficzne.</string>
   <!-- Extended statusbar weather -->
   <string name="status_bar_show_weather_title">Ikona w rozwiniętym pasku stanu</string>
   <string name="status_bar_show_weather_summary">Pokaż prostą pogodę w obszarze rozszerzonego paska powiadomień</string>
@@ -509,6 +507,7 @@
   <string name="info_pref_note_title">Uwaga</string>
   <string name="smartbar_interface">SmartBar</string>
   <string name="icon_pack_picker_dialog_title">Zestawy ikon</string>
+  <string name="invalid_icon_from_uri">Unable to load image from content provider</string>
   <!-- Hardware button navigation -->
   <string name="hardware_keys_volume_keys_title">Przyciski głośności</string>
   <string name="hardware_keys_home_key_title">Przycisk Home</string>
@@ -750,7 +749,7 @@
   <string name="enable_task_manager_title">Menadżer zadań</string>
   <string name="enable_task_manager_summary">Włącz/wyłącz działania dla menadżera zadań przy rozwiniętym pasku stanu</string>
   <!-- Heads Up button -->
-  <string name="enable_headsup_button_extended_statusbar_title">Pogoda w rozwiniętym pasku stanu</string>
+  <string name="enable_headsup_button_extended_statusbar_title">Ikona w rozwiniętym pasku stanu</string>
   <string name="enable_headsup_button_extended_statusbar_summary">Włącz/wyłącz działania dla wyskakujących powiadomień przy rozwiniętym pasku stanu</string>
   <!-- Power menu Animations  -->
   <string name="power_menu_animation_title">Animacja menu zasilania</string>
@@ -867,4 +866,15 @@
   <!-- Current on Lockscreen -->
   <string name="lock_screen_show_current">Jednostka napięcia</string>
   <string name="lock_screen_show_current_summary">Pokaż jednostkę napięcia na ekranie blokady podczas ładowania</string>
+  <!-- Tiles animation style  -->
+  <string name="qs_tile_animation_style_title">Tiles animation style</string>
+  <string name="qs_tile_animation_duration_title">Tiles animation duration</string>
+  <string name="qs_tile_animation_style_off">no animation</string>
+  <string name="qs_tile_animation_style_flip">flip</string>
+  <string name="qs_tile_animation_style_rotate">rotate</string>
+  <string name="qs_tile_animation_duration_low">low</string>
+  <string name="qs_tile_animation_duration_default">default</string>
+  <string name="qs_tile_animation_duration_fast">fast</string>
+  <string name="qs_set_animation_style">Animation is set to %1$s</string>
+  <string name="qs_set_animation_duration">Animation duration is set to %1$s</string>
 </resources>
