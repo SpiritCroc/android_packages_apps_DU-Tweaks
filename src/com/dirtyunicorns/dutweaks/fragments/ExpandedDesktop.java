@@ -16,6 +16,9 @@
 package com.dirtyunicorns.dutweaks.fragments;
 
 import android.annotation.Nullable;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.WindowManagerGlobal;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
@@ -63,14 +67,17 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
     private static final int STATE_NAVIGATION_HIDDEN = 2;
     private static final int STATE_BOTH_HIDDEN = 3;
 
-    private static final int STATE_ENABLE_FOR_ALL = 1;
-    private static final int STATE_USER_CONFIGURABLE = 2;
+    private static final int STATE_ENABLE_FOR_ALL = 0;
+    private static final int STATE_USER_CONFIGURABLE = 1;
+
+    private static final String EXPANDED_DESKTOP_PREFERENCE_TAG = "desktop_prefs";
 
     private AllPackagesAdapter mAllPackagesAdapter;
     private ApplicationsState mApplicationsState;
     private View mEmptyView;
     private View mProgressBar;
     private ListView mUserListView;
+    private FrameLayout mExtraOptions;
     private ApplicationsState.Session mSession;
     private ActivityFilter mActivityFilter;
     private Map<String, ApplicationsState.AppEntry> mEntryMap =
@@ -94,13 +101,14 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
         mSession.resume();
         mActivityFilter = new ActivityFilter(getActivity().getPackageManager());
 
-        WindowManagerPolicyControl.reloadFromSetting(getActivity(),
-                Settings.Global.POLICY_CONTROL);
+        mExpandedDesktopState = getExpandedDesktopState(getActivity().getContentResolver());
+        if (mExpandedDesktopState == STATE_USER_CONFIGURABLE) {
+            WindowManagerPolicyControl.reloadFromSetting(getActivity(),
+                    Settings.Global.POLICY_CONTROL);
+        }
         mAllPackagesAdapter = new AllPackagesAdapter(getActivity());
 
         mAllPackagesAdapter.notifyDataSetChanged();
-
-        mExpandedDesktopState = getExpandedDesktopState(getActivity().getContentResolver());
 
         setHasOptionsMenu(true);
     }
@@ -138,6 +146,7 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
         super.onViewCreated(view, savedInstanceState);
 
         mUserListView = (ListView) view.findViewById(R.id.user_list_view);
+        mExtraOptions = (FrameLayout) view.findViewById(R.id.extra_content);
         mUserListView.setAdapter(mAllPackagesAdapter);
         mUserListView.setFastScrollEnabled(true);
         mUserListView.setOnItemClickListener(this);
@@ -154,10 +163,12 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
         if (mExpandedDesktopState == STATE_USER_CONFIGURABLE) {
             mSwitchBar.setChecked(false);
             showListView();
+            mExtraOptions.setVisibility(View.GONE);
         } else {
             mSwitchBar.setChecked(true);
             mProgressBar.setVisibility(View.GONE);
             hideListView();
+            mExtraOptions.setVisibility(View.VISIBLE);
         }
     }
 
@@ -170,9 +181,10 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
     private void enableForAll() {
         mExpandedDesktopState = STATE_ENABLE_FOR_ALL;
         writeValue("immersive.full=*");
-        WindowManagerPolicyControl.reloadFromSetting(getActivity());
         mAllPackagesAdapter.notifyDataSetInvalidated();
         hideListView();
+        transactFragment();
+        mExtraOptions.setVisibility(View.VISIBLE);
     }
 
     private void userConfigurableSettings() {
@@ -181,7 +193,25 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
         WindowManagerPolicyControl.reloadFromSetting(getActivity());
         mAllPackagesAdapter.notifyDataSetInvalidated();
         showListView();
+        mExtraOptions.setVisibility(View.GONE);
+        removeFragment();
+    }
 
+    private void transactFragment() {
+        Fragment expandedDesktopExtraPrefs = ExpandedDesktopExtraPrefs.newInstance();
+        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.extra_content, expandedDesktopExtraPrefs,
+                EXPANDED_DESKTOP_PREFERENCE_TAG);
+        fragmentTransaction.commit();
+    }
+
+    private void removeFragment() {
+        FragmentManager fragmentManager = getChildFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentByTag(EXPANDED_DESKTOP_PREFERENCE_TAG);
+        if (fragment != null) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(fragment).commit();
+        }
     }
 
     private void hideListView() {
@@ -261,15 +291,14 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
             } else {
                 sectionIndex = label.substring(0, 1).toUpperCase();
             }
-            if (lastSectionIndex == null) {
-                lastSectionIndex = sectionIndex;
-            }
 
-            if (!TextUtils.equals(sectionIndex, lastSectionIndex)) {
+            if (lastSectionIndex == null ||
+                    !TextUtils.equals(sectionIndex, lastSectionIndex)) {
                 sections.add(sectionIndex);
                 positions.add(offset);
                 lastSectionIndex = sectionIndex;
             }
+
             offset++;
         }
 
@@ -297,7 +326,10 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
     }
 
     private void save() {
-        WindowManagerPolicyControl.saveToSettings(getActivity(), Settings.Global.POLICY_CONTROL);
+        if (mExpandedDesktopState == STATE_USER_CONFIGURABLE) {
+            WindowManagerPolicyControl.saveToSettings(getActivity(),
+                    Settings.Global.POLICY_CONTROL);
+        }
     }
 
     int getStateDrawable(int state) {
@@ -443,14 +475,14 @@ public class ExpandedDesktop extends SettingsPreferenceFragment
 
             int index = Arrays.binarySearch(mPositions, position);
 
-        /*
-         * Consider this example: section positions are 0, 3, 5; the supplied
-         * position is 4. The section corresponding to position 4 starts at
-         * position 3, so the expected return value is 1. Binary search will not
-         * find 4 in the array and thus will return -insertPosition-1, i.e. -3.
-         * To get from that number to the expected value of 1 we need to negate
-         * and subtract 2.
-         */
+            /*
+             * Consider this example: section positions are 0, 3, 5; the supplied
+             * position is 4. The section corresponding to position 4 starts at
+             * position 3, so the expected return value is 1. Binary search will not
+             * find 4 in the array and thus will return -insertPosition-1, i.e. -3.
+             * To get from that number to the expected value of 1 we need to negate
+             * and subtract 2.
+             */
             return index >= 0 ? index : -index - 2;
         }
 
