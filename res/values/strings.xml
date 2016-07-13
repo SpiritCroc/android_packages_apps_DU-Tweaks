@@ -649,13 +649,13 @@
     <string name="fling_show_pulse_title">Show Pulse</string>
     <string name="fling_show_pulse_summary">Audio graphic equalizer on the navigation bar</string>
     <string name="pulse_render_mode_title">Render mode</string>
-    <string name="pulse_render_mode_fading_bars">Fading bars</string>
+    <string name="pulse_render_mode_fading_bars">Fading blocks</string>
     <string name="pulse_render_mode_solid_lines">Solid lines</string>
     <string name="fling_pulse_color">Pulse color</string>
     <string name="eos_fling_lavalamp_title">Turn on Lava Lamp</string>
     <string name="eos_fling_lavalamp_summary">Pulse animates a smooth lava lamp style color blend</string>
     <string name="pulse_advanced_category">Advanced</string>
-    <string name="pulse_legacy_mode_advanced_category">Fading bars mode settings</string>
+    <string name="pulse_legacy_mode_advanced_category">Fading blocks mode settings</string>
 
     <!-- Pulse config -->
     <string name="pulse_custom_dimen">Bar width</string>
